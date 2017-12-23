@@ -1,0 +1,11 @@
+# 2003Anketa.xml 14
+# text = Ровно в десять часов раздался короткий звонок.
+# sent_id = 14
+1	Ровно	ровно	ADV	_	Degree=Pos	4	obl	4:obl	_
+2	в	в	ADP	_	_	4	case	4:case	_
+3	десять	десять	NUM	_	Case=Acc	4	nummod:gov	4:nummod:gov	_
+4	часов	час	NOUN	_	Animacy=Inan|Case=Gen|Gender=Masc|Number=Plur	5	obl	5:obl	_
+5	раздался	раздаваться	VERB	_	Aspect=Perf|Gender=Masc|Mood=Ind|Number=Sing|Tense=Past|VerbForm=Fin|Voice=Mid	0	root	0:root	_
+6	короткий	короткий	ADJ	_	Case=Nom|Degree=Pos|Gender=Masc|Number=Sing	7	amod	7:amod	_
+7	звонок	звонок	NOUN	_	Animacy=Inan|Case=Nom|Gender=Masc|Number=Sing	5	nsubj	5:nsubj	SpaceAfter=No
+8	.	.	PUNCT	_	_	7	punct	7:punct	_
