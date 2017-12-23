@@ -3,7 +3,7 @@ Converter for tags from UD-tree bank to Apertium format.
 
 ## How it is work
 To convertig tags you need create csv tags dict for your language (look to `tags/rus.csv`).
-Then just run the program: <br>`python3 converter.py sict_file.csv input_ud_corpus.conllu output_apertium_file.appertium`
+Then just run the program: <br>`python3 converter.py sict_file.csv input_ud_corpus.conllu output_apertium_file.apertium`
 
 ## Example
 ```bash
