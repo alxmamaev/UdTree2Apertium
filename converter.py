@@ -24,47 +24,49 @@ def parse_ud(input_file):
 
 		_, word, normal_form, pos, _, tags, _, _, _, _ = line.strip().split("\t")
 		
-		token = {"word":word, "normal_form": normal_form, "pos": pos, "tags": set([ud2apr[t] for t in tags.split("|") + [pos]])}
+		token = {"word":word, "normal_form": normal_form, "pos": pos, "tags": set([ud2apr.get(t) for t in tags.split("|") + [pos]])}
 		ud_tree.append(token)
 
 	return (ud_tree)
 
 def get_apertium_tags(input_file):
 	result_tags = {}
+
 	while True:
 		line = input_file.readline()
-		if not line: break
-		if not line.startswith("# text = "): continue
+		if line.startswith("#"): continue
+		if not line:break
+		
+		word = line.split("\t")[1:2]
+		
+		if not word: continue
 
-		line = line.replace("# text = ", "")
-		words = line.replace("$ ", "$").replace("^", "").strip().split("$")[:-1]
-		for word in words:
-			tokens = word.split("/")
+		word = word[0]
+		
+		word = word[1:-2].lower()
+		tokens = word.split("/")
+		
+		variants_of_words = []
+		for token in tokens[1:]:
+			normal_form = token.split("<")[0]
+			tags = re.findall("\<[a-z]*\>", token)
 			
-			if tokens[0] in result_tags:
-				continue
-
-			variants_of_words = []
-			for token in tokens[1:]:
-				normal_form = token.split("<")[0]
-				
-				tags = re.findall("\<[a-z]*\>", token)
-			
-				variants_of_words.append({"normal_form":normal_form, "tags":tags})
-			
-			result_tags[tokens[0]] = variants_of_words
-
+			variants_of_words.append({"normal_form":normal_form, "tags":tags})
+	
+		result_tags[tokens[0]] = variants_of_words
 	return result_tags
 
 def convert_token_to_apertium(token, apertium_parse_result):
-	# import pdb;pdb.set_trace()
-
 	result_token = "^%s/" % (token["word"])
 
 	max_intersection = 0
 	result_tags = []
 	result_normal_from = ""
-	for variant in apertium_parse_result[token["word"]]:
+	
+	if not token["word"].lower().split("-")[0] in apertium_parse_result:
+		return None
+
+	for variant in apertium_parse_result[token["word"].lower().split("-")[0]]:
 		if len(set(variant["tags"]) & token["tags"]) > max_intersection:
 			max_intersection = len(set(variant["tags"]) & token["tags"])
 			result_tags = variant["tags"]
@@ -89,6 +91,10 @@ if __name__ == "__main__":
 
 	for token in ud_tree:
 		ap_token = convert_token_to_apertium(token, apertium_parse_result)
+		
+		if ap_token is None:
+			continue
+		
 		print(ap_token)
 		output_file.write(ap_token+"\n")
 
