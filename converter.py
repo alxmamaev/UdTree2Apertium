@@ -70,6 +70,7 @@ def convert_token_to_apertium(token, apertium_parse_result):
 			max_intersection = len(set(variant["tags"]) & token["tags"])
 			result_tags = variant["tags"]
 
+	result_token += token["normal_form"]
 	result_token += "".join(result_tags)
 	result_token += "$"
 
