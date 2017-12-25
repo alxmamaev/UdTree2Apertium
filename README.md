@@ -13,7 +13,7 @@ $ python converter.py tags/rus.csv test_apertium.tags test.conllu test.apertium
 ^в/в<pr>$
 ^десять/десять<num><mfn><pl><acc>$
 ^часов/час<n><m><nn><pl><gen>$
-^раздался/раздаваться$
+^раздался/раздаваться<vblex><perf><iv><past><m><sg>$
 ^короткий/короткий<adj><sint><m><an><sg><nom>$
 ^звонок/звонок<n><m><nn><sg><nom>$
 ^./.<sent>$
