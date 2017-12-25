@@ -38,7 +38,6 @@ def get_apertium_tags(input_file):
 
 		line = line.replace("# text = ", "")
 		words = line.replace("$ ", "$").replace("^", "").strip().split("$")[:-1]
-		# import pdb;pdb.set_trace()
 		for word in words:
 			tokens = word.split("/")
 			
@@ -58,19 +57,20 @@ def get_apertium_tags(input_file):
 	return result_tags
 
 def convert_token_to_apertium(token, apertium_parse_result):
+	# import pdb;pdb.set_trace()
+
 	result_token = "^%s/" % (token["word"])
 
 	max_intersection = 0
 	result_tags = []
+	result_normal_from = ""
 	for variant in apertium_parse_result[token["word"]]:
-		if variant["normal_form"] != token["normal_form"]:
-			continue
-
 		if len(set(variant["tags"]) & token["tags"]) > max_intersection:
 			max_intersection = len(set(variant["tags"]) & token["tags"])
 			result_tags = variant["tags"]
+			result_normal_from = token["normal_form"]
 
-	result_token += token["normal_form"]
+	result_token += result_normal_from
 	result_token += "".join(result_tags)
 	result_token += "$"
 
