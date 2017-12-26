@@ -71,21 +71,23 @@ def convert_token_to_apertium(token, apertium_parse_result):
 		return None
 
 	max_intersection = 0
-	try:
-		result_tags = apertium_parse_result[index_word][0]["tags"]
-	except Exception:
-		import pdb;pdb.set_trace()
-
-	result_normal_from =  apertium_parse_result[index_word][0]["normal_form"]
+	analysis = set()
 	
 	for variant in apertium_parse_result[index_word]:
-		if len(set(variant["tags"]) & token["tags"]) > max_intersection:
-			max_intersection = len(set(variant["tags"]) & token["tags"])
-			result_tags = variant["tags"]
-			result_normal_from = token["normal_form"]
+		tags = "".join(variant["tags"])
+		normal_from = token["normal_form"]
 
-	result_token += result_normal_from
-	result_token += "".join(result_tags)
+		analys = normal_from+tags
+		intersection_len = len(set(variant["tags"]) & token["tags"])
+
+		if  intersection_len > max_intersection:
+			max_intersection = intersection_len
+			analysis = {analys}
+
+		if intersection_len == max_intersection:
+			analysis.add(analys)
+
+	result_token += "/".join(list(analysis))
 	result_token += "$"
 
 	result_token = result_token.replace("<>", "")
