@@ -83,7 +83,7 @@ def convert_token_to_apertium(token, apertium_parse_result):
 	
 	for variant in apertium_parse_result[index_word]:
 		tags = "".join(variant["tags"])
-		normal_from = token["normal_form"]
+		normal_from = variant["normal_form"]
 
 		analys = normal_from+tags
 		intersection_len = len(set(variant["tags"]) & token["tags"])
