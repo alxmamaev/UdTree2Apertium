@@ -24,7 +24,15 @@ def parse_ud(input_file):
 
 		_, word, normal_form, pos, _, tags, _, _, _, _ = line.strip().split("\t")
 		
-		token = {"word":word, "normal_form": normal_form, "pos": pos, "tags": set([ud2apr.get(t) for t in tags.split("|") + [pos]])}
+
+		reult_tags = []
+		for t in tags.split("|") + [pos]:
+			tag = ud2apr.get(t)
+			if tag is None: continue
+	
+			reult_tags += re.findall("\<[a-z]*\>", tag)
+
+		token = {"word":word, "normal_form": normal_form, "pos": pos, "tags": set(reult_tags)}
 		ud_tree.append(token)
 
 	return (ud_tree)

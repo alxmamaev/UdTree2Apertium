@@ -34,7 +34,7 @@
 ^a/a<det><ind><sg>$
 ^respected/respected<adj>$
 ^cleric/cleric<n><sg>$
-^will/will<n><sg>/will<vbmod><pres>/will<vbmod><inf>$
+^will/will<vbmod><pres>/will<vbmod><inf>$
 ^be/be<vbser><inf>$
 ^causing/cause<vblex><ger>$
 ^us/we<prn><obj><mf><pl>$
@@ -52,7 +52,7 @@
 ^announced/announce<vblex><past>$
 ^that/that<cnjsub>$
 ^they/they<prn><subj><mf><pl>$
-^had/have<vblex><past><sg>/have<vbhaver><past><sg>/have<vbhaver><past><pl>/have<vblex><past><pl>$
+^had/have<vblex><past><sg>/have<vbhaver><past><pl>/have<vblex><past><pl>/have<vbhaver><past><sg>$
 ^busted/bust$
 ^up/up<pr>$
 ^3/3<num>$
