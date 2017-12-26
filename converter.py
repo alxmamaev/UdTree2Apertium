@@ -46,6 +46,9 @@ def get_apertium_tags(input_file):
 		word = word[1:-1]
 		tokens = word.split("/")
 
+		if tokens[0] in result_tags:
+			continue
+
 		variants_of_words = []
 		for token in tokens[1:]:
 			normal_form = token.split("<")[0]
@@ -59,14 +62,23 @@ def get_apertium_tags(input_file):
 def convert_token_to_apertium(token, apertium_parse_result):
 	result_token = "^%s/" % (token["word"])
 
-	if not token["word"].lower().split("-")[0] in apertium_parse_result:
+	if token["word"] == "-":
+		index_word = "-"
+	else:
+		index_word = token["word"].lower().split("-")[0]
+
+	if not index_word in apertium_parse_result:
 		return None
 
 	max_intersection = 0
-	result_tags = apertium_parse_result[token["word"].lower().split("-")[0]][0]["tags"]
-	result_normal_from =  apertium_parse_result[token["word"].lower().split("-")[0]][0]["normal_form"]
+	try:
+		result_tags = apertium_parse_result[index_word][0]["tags"]
+	except Exception:
+		import pdb;pdb.set_trace()
+
+	result_normal_from =  apertium_parse_result[index_word][0]["normal_form"]
 	
-	for variant in apertium_parse_result[token["word"].lower().split("-")[0]]:
+	for variant in apertium_parse_result[index_word]:
 		if len(set(variant["tags"]) & token["tags"]) > max_intersection:
 			max_intersection = len(set(variant["tags"]) & token["tags"])
 			result_tags = variant["tags"]
