@@ -43,7 +43,7 @@ def get_apertium_tags(input_file):
 
 		word = word[0]
 
-		word = word[1:-1].lower()
+		word = word[1:-1]
 		tokens = word.split("/")
 
 		variants_of_words = []
@@ -53,7 +53,7 @@ def get_apertium_tags(input_file):
 			
 			variants_of_words.append({"normal_form":normal_form, "tags":tags})
 	
-		result_tags[tokens[0]] = variants_of_words
+		result_tags[tokens[0].lower()] = variants_of_words
 	return result_tags
 
 def convert_token_to_apertium(token, apertium_parse_result):
