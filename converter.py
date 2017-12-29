@@ -51,7 +51,10 @@ def get_apertium_tags(input_file):
 
 		word = word[0]
 
-		word = word[1:-1]
+		word = word.split("$")[0].split("^")
+		if len(word)>1: word = word[1]
+		else: word = word[0]
+
 		tokens = word.split("/")
 
 		if tokens[0] in result_tags:
@@ -75,7 +78,7 @@ def convert_token_to_apertium(token, apertium_parse_result):
 	else:
 		index_word = token["word"].lower().split("-")[0]
 
-	if not index_word in apertium_parse_result:
+	if not index_word or not index_word in apertium_parse_result:
 		return None
 
 	max_intersection = 0
@@ -95,7 +98,12 @@ def convert_token_to_apertium(token, apertium_parse_result):
 		if intersection_len == max_intersection:
 			analysis.add(analys)
 
-	result_token += "/".join(list(analysis))
+	analys = "/".join(list(analysis))
+
+	if not analys:
+		return None
+
+	result_token += analys
 	result_token += "$"
 
 	result_token = result_token.replace("<>", "")
@@ -111,13 +119,12 @@ if __name__ == "__main__":
 	ud_tree = parse_ud(input_file)
 	apertium_parse_result = get_apertium_tags(apertium_file)
 
-
 	for token in ud_tree:
 		ap_token = convert_token_to_apertium(token, apertium_parse_result)
-		
+
 		if ap_token is None:
 			continue
-		
+
 		print(ap_token)
 		output_file.write(ap_token+"\n")
 

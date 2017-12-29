@@ -69,6 +69,6 @@ X,<x>
 _,<>
 cm,<cm>
 guio,<guio>
-sent,<sent>
-PUNCT,<sent>
+sent,<sent><apos>
+PUNCT,<sent><apos>
 PART,<adv>
