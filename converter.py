@@ -4,73 +4,20 @@ import codecs
 
 ud2apr = None
 
-def get_tags(tags_file):
+
+# function to load csv tags dict
+def load_tags_dict(tags_file):
 	tags = {}
 	while True:
 		line = tags_file.readline()
 		if not line: break
 
-		ud_tag, ap_tag = line.strip().split(",")
-		tags[ud_tag] = ap_tag
+		ud_tag, apr_tag = line.strip().split(",")
+		tags[ud_tag] = apr_tag
 
 	return tags
 
-def parse_ud(input_file):
-	ud_tree = []
-	while True:
-		line = input_file.readline()
-		if not line: break
-		if line[0] == "#" or not line.strip(): continue
-
-		_, word, normal_form, pos, _, tags, _, _, _, _ = line.strip().split("\t")
-		
-
-		reult_tags = []
-		for t in tags.split("|") + [pos]:
-			tag = ud2apr.get(t)
-			if tag is None: continue
-	
-			reult_tags += re.findall("\<[a-z]*\>", tag)
-
-		token = {"word":word, "normal_form": normal_form, "pos": pos, "tags": set(reult_tags)}
-		ud_tree.append(token)
-
-	return (ud_tree)
-
-def get_apertium_tags(input_file):
-	result_tags = {}
-
-	while True:
-		line = input_file.readline()
-		if line.startswith("#"): continue
-		if not line:break
-		
-		word = line.split("\t")[1:2]
-		
-		if not word: continue
-
-		word = word[0]
-
-		word = word.split("$")[0].split("^")
-		if len(word)>1: word = word[1]
-		else: word = word[0]
-
-		tokens = word.split("/")
-
-		if tokens[0] in result_tags:
-			continue
-
-		variants_of_words = []
-		for token in tokens[1:]:
-			normal_form = token.split("<")[0]
-			tags = re.findall("\<[a-z]*\>", token)
-			
-			variants_of_words.append({"normal_form":normal_form, "tags":tags})
-	
-		result_tags[tokens[0].lower()] = variants_of_words
-	return result_tags
-
-def convert_token_to_apertium(token, apertium_parse_result):
+def convert_token_from_ud_to_apertium(token, word2analys):
 	result_token = "^%s/" % (token["word"])
 
 	if token["word"] == "-":
@@ -78,57 +25,123 @@ def convert_token_to_apertium(token, apertium_parse_result):
 	else:
 		index_word = token["word"].lower().split("-")[0]
 
-	if not index_word or not index_word in apertium_parse_result:
+	if not index_word or not index_word in word2analys:
 		return None
 
 	max_intersection = 0
-	analysis = set()
+	word_analysis = set()
 	
-	for variant in apertium_parse_result[index_word]:
-		tags = "".join(variant["tags"])
-		normal_from = variant["normal_form"]
-
+	for analys in word2analys[index_word]:
 		analys = normal_from+tags
-		intersection_len = len(set(variant["tags"]) & token["tags"])
+		tags = set(re.findall("\<[a-z]*\>", analys)) 
+
+		intersection_len = len(tags & token["tags"])
 
 		if  intersection_len > max_intersection:
 			max_intersection = intersection_len
-			analysis = {analys}
+			word_analysis = {analys}
 
-		if intersection_len == max_intersection:
-			analysis.add(analys)
+		elif intersection_len == max_intersection:
+			word_analysis.add(analys)
 
-	analys = "/".join(list(analysis))
+	result_analys = "/".join(list(word_analysis))
 
-	if not analys:
+	if not result_analys:
 		return None
 
-	result_token += analys
+	result_token += result_analys
 	result_token += "$"
 
 	result_token = result_token.replace("<>", "")
 	return result_token
 
+
+
+def get_ud_token(ud_tree_file):
+	while True:
+		line = ud_tree_file.readline()
+		
+		if not line: return None
+		if line.startswith("#") or not line.strip(): continue
+
+		_, word, normal_form, pos, _, tags, _, _, _, _ = line.strip().split("\t")
+		break
+
+	word_tags = set()
+	for tag in tags.split("|") + [pos]:
+		tag = ud2apr.get(tag)
+		if tag is None: continue
+
+		word_tags = word_tags | set(re.findall("\<[a-z]*\>", tag)) 
+
+	token = {"word": word, "tags":word_tags}
+
+	return token
+
+
+def get_aprtium_token(ud_tree_file):
+	while True:
+		line = ud_tree_file.readline()
+		
+		if not line: return None
+		if not line.strip(): continue
+		if not re.findall("\^.*\$", line): return -1
+
+		line = line[1:-2]
+		word, variants_of_parsing = line.split("/")[0], set(line.split("/")[1:]) 
+		break
+
+	token = {"word": word, "variants_of_parsing":variants_of_parsing}
+
+	return token
+
+def get_next_token(apertium_file, ud_tree_file):
+	apertium_token  = get_aprtium_token(apertium_file)
+	ud_token = get_ud_token(ud_tree_file)
+
+	if apertium_token == -1:
+		return ""
+
+	if apertium_token is None or ud_token is None:
+		return None
+
+	token = "^%s/" % apertium_token["word"]
+
+	max_intersection = 0
+	variants_of_parsing = []
+	for variant in apertium_token["variants_of_parsing"]:
+		tags = set(re.findall("\<[a-z]*\>", variant))
+		intersection = len(ud_token["tags"] & tags)
+
+		if max_intersection == intersection:
+			variants_of_parsing.append(variant)
+		elif max_intersection < intersection:
+			max_intersection = intersection
+			variants_of_parsing = [variant]
+
+	token += "/".join(variants_of_parsing)
+	token += "$"
+	return token
+
+
 if __name__ == "__main__":
 	tags_file = codecs.open(sys.argv[1], "r", "utf-8")
 	apertium_file = codecs.open(sys.argv[2], "r", "utf-8")
-	input_file = codecs.open(sys.argv[3], "r", "utf-8")
+	ud_tree_file = codecs.open(sys.argv[3], "r", "utf-8")
 	output_file = codecs.open(sys.argv[4], "w", "utf-8")
 
-	ud2apr = get_tags(tags_file)
-	ud_tree = parse_ud(input_file)
-	apertium_parse_result = get_apertium_tags(apertium_file)
+	ud2apr = load_tags_dict(tags_file)
 
-	for token in ud_tree:
-		ap_token = convert_token_to_apertium(token, apertium_parse_result)
+	while True:
+		token = get_next_token(apertium_file, ud_tree_file)
 
-		if ap_token is None:
-			continue
+		if token is None:
+			break
 
-		print(ap_token)
-		output_file.write(ap_token+"\n")
+		print(token)
+		output_file.write(token+"\n")
 
 	apertium_file.close()
 	tags_file.close()
-	input_file.close()
+	ud_tree_file.close()
 	output_file.close()
