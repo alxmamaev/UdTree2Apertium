@@ -17,7 +17,7 @@ python converter.py tags/eng.csv en-ud-train.apertium en-ud-train.conllu eng.tag
 ## Example
 ```bash
 alxmamaev@alxmamaev-pc MINGW32 ~/Projects/UdTree2Apertium (master)
-$ python converter.py tags/rus.csv ru-ud-train.apertium ru-ud-train.conllu rus.tagged
+$ python converter.py tags/eng.csv en-ud-train.apertium en-ud-train.conllu eng.tagged
 ^Al/Al<np><ant><m><sg>$
 ^-/-<guio>$
 ^Zaman/Zaman<np><cog><sg>$
